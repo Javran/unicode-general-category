@@ -1,0 +1,8 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "unicode-general-category:lib"
+    - path: "./exe"
+      component: "unicode-general-category:exe:demo"
+    - path: "./test"
+      component: "unicode-general-category:test:hspec"

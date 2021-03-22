@@ -1,0 +1,46 @@
+name: unicode-general-category
+version: 0.1.0.0
+github: Javran/unicode-general-category
+license: BSD3
+author: Javran Cheng
+maintainer: javran.c@gmail.com
+copyright: "Copyright: (c) 2021 Javran Cheng"
+
+description: Unicode General Category
+
+extra-source-files: embed/*
+
+dependencies:
+  - base
+
+library:
+  source-dirs: src
+  ghc-options:
+    - -Wall
+    - -O2
+  dependencies:
+    - array
+    - bytestring
+    - text
+    - containers
+    - file-embed
+    - binary
+
+tests:
+  hspec:
+    main: Spec.hs
+    source-dirs:
+      - test
+    dependencies:
+      - unicode-general-category
+      - QuickCheck
+      - hspec
+      - containers
+      - bytestring
+    ghc-options:
+      - -Wall
+      - -O2
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -main-is Spec
