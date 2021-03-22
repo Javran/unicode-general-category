@@ -29,6 +29,16 @@ import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
 import Numeric
 
+-- | General category database.
+--   Conceptually this is a sorted array of ascending, non-overlapping inclusive codepoint ranges,
+--   with a 'GeneralCategory' attached to each of them.
+--   Note that 'NotAssigned' should not be present in this array.
+--
+--   Internally every element is packed into 'Word64', for the least significant bits:
+--
+--   * @0-23@ bits represent the low codepoint range (inclusive)
+--   * @24-47@ bits represent the high codepoint range (inclusive)
+--   * @47-63@ bits represent general category values consistent to 'GeneralCategory'\'s 'Enum' instance.
 newtype GenCatDatabase
   = GenCatDatabase (A.UArray Int Word64)
   deriving (Binary)
@@ -38,6 +48,7 @@ type Range =
     (Int, Int) -- [l .. r] (both inclusive)
     Int
 
+-- | General category abbreviations
 genCatLitTable :: M.Map T.Text GeneralCategory
 genCatLitTable = M.fromList $ zip (T.words abbrs) [minBound .. maxBound]
   where
@@ -122,7 +133,8 @@ mkDatabase' gs = GenCatDatabase $ A.listArray (0, l -1) (fmap mkItem gs)
           Left (a, b) -> (a, b)
           Right v -> (v, v)
 
--- Parses from UnicodeData.txt
+-- | Parses a lazy 'BSL.ByteString' from a __UnicodeData.txt__.
+--   For example, content of [UnicodeData.txt](https://www.unicode.org/Public/13.0.0/ucd/UnicodeData.txt)
 mkDatabaseFromUnicodeData :: BSL.ByteString -> Either String GenCatDatabase
 mkDatabaseFromUnicodeData = verifyUnicodeDataAndProcess >=> pure . mkDatabase'
 
@@ -145,6 +157,8 @@ unpackTuple payload = (lo, high, gc)
     high = fromIntegral (0xFF_FFFF .&. (payload `unsafeShiftR` 24))
     gc = fromIntegral (0xFF .&. (payload `unsafeShiftR` 48))
 
+-- | Queries database. @query db@ should be a function equivalent to 'Data.Char.generalCategory',
+--   but queries the argument database instead.
 query :: GenCatDatabase -> Char -> GeneralCategory
 query (GenCatDatabase arr) ch = toEnum . fromIntegral $ search lo hi
   where
@@ -163,6 +177,8 @@ query (GenCatDatabase arr) ch = toEnum . fromIntegral $ search lo hi
                   | otherwise -> error "unreachable"
         else fromIntegral $ fromEnum NotAssigned
 
+-- | Verifies that all properties of a 'GenCatDatabase' holds,
+--   and turns an 'A.UArray' into a database if all requirements are met.
 checkDatabase :: A.UArray Int Word64 -> Either String GenCatDatabase
 checkDatabase arr = do
   let xs = A.elems arr
@@ -184,5 +200,6 @@ checkDatabase arr = do
       Left $ "failed when comparing element pair " <> show (i, j) <> "not strictly ascending."
   pure (GenCatDatabase arr)
 
+-- | Verifies that all properties of a 'GenCatDatabase' holds.
 checkDatabase' :: GenCatDatabase -> Either String GenCatDatabase
 checkDatabase' = coerce checkDatabase

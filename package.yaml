@@ -5,19 +5,23 @@ license: BSD3
 author: Javran Cheng
 maintainer: javran.c@gmail.com
 copyright: "Copyright: (c) 2021 Javran Cheng"
+synopsis: Unicode General Category Database
+description:
+  This package provides Unicode General Category data for Unicode 13.0.0.
+  In addition it offers tools to process UnicodeData.txt content
+  and turn it into a database compatible with this package.
 
-description: Unicode General Category
+category: Unicode
 
 extra-source-files: embed/*
 
 dependencies:
-  - base
+  - base >= 4.5 && <= 1000
 
 library:
   source-dirs: src
   ghc-options:
     - -Wall
-    - -O2
   dependencies:
     - array
     - bytestring

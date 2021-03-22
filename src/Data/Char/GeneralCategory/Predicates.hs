@@ -57,14 +57,23 @@ gcIsSeparator c = case c of
   ParagraphSeparator -> True
   _ -> False
 
+-- | A set of predicate functions related to `GeneralCategory` queries.
+--   You can either destruct at top level or locally to get access to each of them.
 data Predicates i = Predicates
-  { generalCategory :: i -> GeneralCategory
-  , isLetter :: i -> Bool
-  , isMark :: i -> Bool
-  , isNumber :: i -> Bool
-  , isPunctuation :: i -> Bool
-  , isSymbol :: i -> Bool
-  , isSeparator :: i -> Bool
+  { -- | Counterpart of 'Data.Char.generalCategory'
+    generalCategory :: i -> GeneralCategory
+  , -- | Counterpart of 'Data.Char.isLetter'
+    isLetter :: i -> Bool
+  , -- | Counterpart of 'Data.Char.isMark'
+    isMark :: i -> Bool
+  , -- | Counterpart of 'Data.Char.isNumber'
+    isNumber :: i -> Bool
+  , -- | Counterpart of 'Data.Char.isPunctuation'
+    isPunctuation :: i -> Bool
+  , -- | Counterpart of 'Data.Char.isSymbol'
+    isSymbol :: i -> Bool
+  , -- | Counterpart of 'Data.Char.isSeparator'
+    isSeparator :: i -> Bool
   }
 
 instance Contravariant Predicates where
@@ -78,6 +87,8 @@ instance Contravariant Predicates where
       (sy . f)
       (se . f)
 
+-- | A set of functions similiar to their counterparts found in "Data.Char"
+--   but takes 'GeneralCategory' as argument.
 predicates :: Predicates GeneralCategory
 predicates =
   Predicates
@@ -90,5 +101,8 @@ predicates =
     , generalCategory = id
     }
 
+-- | Takes a function that is equivalent to 'Data.Char.generalCategory'
+--   and returns the set of functions equivalent to those found in "Data.Char",
+--   but with the argument function serving instead.
 mkPredicates :: (Char -> GeneralCategory) -> Predicates Char
 mkPredicates = (>$< predicates)
