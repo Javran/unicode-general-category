@@ -48,3 +48,20 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
       - -main-is Spec
+
+benchmarks:
+  criterion:
+    main: Bench.hs
+    source-dirs:
+      - bench
+    dependencies:
+      - criterion
+      - deepseq
+      - unicode-general-category
+      - random-shuffle
+    ghc-options:
+      - -threaded
+      - -O2
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -main-is Bench
